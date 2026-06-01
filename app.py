@@ -43,12 +43,13 @@ st.markdown("""
     -webkit-text-fill-color: transparent;
 }
 
-.slogan {
-    text-align: center;
-    font-size: 26px;
-    font-weight: 850;
-    color: #6c4df6;
-    margin-bottom: 25px;
+.slogan{
+    text-align:center;
+    font-size:30px;
+    font-weight:850;
+    color:#6c4df6;
+    margin-top:-70px;
+    margin-bottom:10px;
 }
 
 .splash {
@@ -122,6 +123,23 @@ st.markdown("""
     font-size: 15px;
 }
 
+.hero-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+}
+
+.hero-slogan{
+    text-align:center;
+    font-size:36px;
+    font-weight:850;
+    color:#6c4df6;
+    margin-top:40px;
+    margin-bottom:-70px;
+}
+            
+
 .playlist-card {
     padding: 18px;
     border-radius: 20px;
@@ -156,20 +174,29 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ===================== LOGO =====================
 
-col1, col2, col3 = st.columns([1,2,1])
+# ===================== APPEARANCE =====================
+logo = Image.open("image/apperance.png")
+
+st.markdown("""
+<div class='hero-slogan'>
+Cảm xúc của bạn, hãy để chúng tôi lắng nghe 🎵
+</div>
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([0.35,0.5,0.25])
 
 with col2:
-    st.image("image/logo.png", width=220)
+    st.image(
+        logo,
+        width=350
+    )
 
-st.markdown(
-    '<div class="slogan">Cảm xúc của bạn, hãy để chúng tôi lắng nghe 🎵</div>',
-    unsafe_allow_html=True
-)
-
-
-
+st.markdown("""
+<div class='slogan'>
+Mỗi cảm xúc đều có một giai điệu riêng
+</div>
+""", unsafe_allow_html=True)
 
 # ===================== DATA =====================
 playlist_bank = {
@@ -353,9 +380,6 @@ def life_analysis(journal):
         return "Bạn đang có xu hướng cảm xúc tích cực. Hãy tiếp tục duy trì các thói quen tốt và lan tỏa năng lượng này."
     return "Bạn đang cần cân bằng lại cảm xúc. Những playlist nhẹ nhàng và thói quen nghỉ ngơi ngắn có thể giúp ích."
 
-# ===================== HEADER =====================
-st.markdown('<div class="main-title">🎵 Mind Melody ♪</div>', unsafe_allow_html=True)
-st.markdown('<div class="slogan">Mỗi cảm xúc đều có một giai điệu riêng</div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "🧠 Lắng nghe tôi",
@@ -397,7 +421,7 @@ with tab1:
             st.markdown(
                 """
                 <div class="tech-box">
-                🧠 Bạn đồng hành AI của bạn &nbsp;&nbsp; 🎙️ Chia sẻ bằng giọng nói &nbsp;&nbsp; 📷 Nhận biết cảm xúc của bạn &nbsp;&nbsp; 🎵 Cảm nhận giai điệu
+                🧠 Bạn đồng hành AI   &nbsp;&nbsp; 🎙️ Chia sẻ bằng giọng nói &nbsp;&nbsp; 📷 Nhận biết cảm xúc của bạn bằng AI &nbsp;&nbsp; 🎵 Cảm nhận giai điệu
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -512,7 +536,7 @@ with tab1:
 
 # ===================== TAB 2 =====================
 with tab2:
-    st.markdown("## 📖 Nhật ký cảm xúc")
+    st.markdown("## 📖 🌱 Hành trình cảm xúc")
 
     if st.session_state.journal:
         df = pd.DataFrame(st.session_state.journal)
