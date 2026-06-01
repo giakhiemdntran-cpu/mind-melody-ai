@@ -3,13 +3,15 @@ import pandas as pd
 from datetime import datetime
 import random
 import tempfile
+from PIL import Image
 # from faster_whisper import WhisperModel
 
 st.set_page_config(
     page_title="Mind Melody",
-    page_icon="🎵",
+    page_icon="image/logo.png",
     layout="wide"
 )
+
 
 # ===================== SESSION =====================
 if "journal" not in st.session_state:
@@ -154,16 +156,66 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ===================== LOGO =====================
+
+col1, col2, col3 = st.columns([1,2,1])
+
+with col2:
+    st.image("image/logo.png", width=220)
+
+st.markdown(
+    '<div class="slogan">Cảm xúc của bạn, hãy để chúng tôi lắng nghe 🎵</div>',
+    unsafe_allow_html=True
+)
+
+
+
+
 # ===================== DATA =====================
 playlist_bank = {
+
     "căng thẳng": [
         {
             "name": "Lofi Việt Chill",
             "url": "https://www.youtube.com/results?search_query=lofi+viet+chill"
         },
         {
-            "name": "Piano thư giãn",
+            "name": "Piano Thư Giãn",
             "url": "https://www.youtube.com/results?search_query=piano+thu+gian"
+        },
+        {
+            "name": "Nhạc Cafe Chill",
+            "url": "https://www.youtube.com/results?search_query=cafe+music+viet"
+        }
+    ],
+
+    "mệt mỏi": [
+        {
+            "name": "Healing Music",
+            "url": "https://www.youtube.com/results?search_query=healing+music+viet"
+        },
+        {
+            "name": "Acoustic Việt",
+            "url": "https://www.youtube.com/results?search_query=acoustic+viet"
+        },
+        {
+            "name": "Nhạc Ngủ Ngon",
+            "url": "https://www.youtube.com/results?search_query=nhac+ngu+ngon"
+        }
+    ],
+
+    "áp lực": [
+        {
+            "name": "Study Lofi",
+            "url": "https://www.youtube.com/results?search_query=study+lofi+viet"
+        },
+        {
+            "name": "Deep Focus",
+            "url": "https://www.youtube.com/results?search_query=deep+focus+music"
+        },
+        {
+            "name": "Nhạc Tập Trung",
+            "url": "https://www.youtube.com/results?search_query=nhac+tap+trung+hoc+bai"
         }
     ],
 
@@ -171,6 +223,59 @@ playlist_bank = {
         {
             "name": "Ballad Việt",
             "url": "https://www.youtube.com/results?search_query=ballad+viet"
+        },
+        {
+            "name": "Indie Việt",
+            "url": "https://www.youtube.com/results?search_query=indie+viet"
+        },
+        {
+            "name": "Nhạc Chữa Lành",
+            "url": "https://www.youtube.com/results?search_query=healing+vietnamese+music"
+        }
+    ],
+
+    "vui vẻ": [
+        {
+            "name": "V-Pop Tích Cực",
+            "url": "https://www.youtube.com/results?search_query=vpop+happy+songs"
+        },
+        {
+            "name": "Nhạc Tạo Động Lực",
+            "url": "https://www.youtube.com/results?search_query=motivational+music+vietnamese"
+        },
+        {
+            "name": "Nhạc Trẻ Việt",
+            "url": "https://www.youtube.com/results?search_query=nhac+tre+viet+hay"
+        }
+    ],
+
+    "cần thư giãn": [
+        {
+            "name": "Café Sữa Đá Lofi",
+            "url": "https://www.youtube.com/results?search_query=cafe+sua+da+lofi"
+        },
+        {
+            "name": "Chill Việt",
+            "url": "https://www.youtube.com/results?search_query=chill+viet"
+        },
+        {
+            "name": "Nature Sounds",
+            "url": "https://www.youtube.com/results?search_query=nature+sounds+relax"
+        }
+    ],
+
+    "lo lắng": [
+        {
+            "name": "Calm Music",
+            "url": "https://www.youtube.com/results?search_query=calm+music"
+        },
+        {
+            "name": "Meditation Music",
+            "url": "https://www.youtube.com/results?search_query=meditation+music"
+        },
+        {
+            "name": "Piano Bình Yên",
+            "url": "https://www.youtube.com/results?search_query=peaceful+piano"
         }
     ]
 }
@@ -254,9 +359,9 @@ st.markdown('<div class="slogan">Mỗi cảm xúc đều có một giai điệu 
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "🧠 Lắng nghe tôi",
-    "📖 Nhật ký cảm xúc",
+    "🌱 Hành trình cảm xúc",
     "📊 Phân tích cuộc sống",
-    "⚙️ Công nghệ AI"
+    "🚀 AI Behind Mind Melody"
 ])
 
 # ===================== TAB 1 =====================
@@ -369,15 +474,19 @@ with tab1:
             )
 
             st.markdown(
-                f"### 🎧 Liều thuốc âm nhạc hôm nay: {selected_playlist['name']}"
+                f"## 🎵 Liều thuốc âm nhạc hôm nay"
+            )
+
+            st.success(
+                selected_playlist["name"]
             )
 
             st.link_button(
-                "🎵 Nghe ngay",
+                "🎧 Nghe ngay trên YouTube",
                 selected_playlist["url"]
             )
 
-            with st.expander("🎶 Những gợi ý khác"):
+            with st.expander("🎶 Thêm gợi ý khác"):
                 for p in playlist_bank[emotion]:
                     st.link_button(
                         p["name"],
@@ -442,7 +551,7 @@ with tab3:
 
 # ===================== TAB 4 =====================
 with tab4:
-    st.markdown("## ⚙️ Luồng công nghệ AI đề xuất")
+    st.markdown("## 🚀 AI Behind Mind Melody")
 
     st.markdown("""
     ### 1. Giọng nói
