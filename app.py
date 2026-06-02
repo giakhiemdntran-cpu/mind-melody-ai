@@ -4,18 +4,19 @@ from datetime import datetime
 import random
 import tempfile
 from PIL import Image
+from database import init_db, save_journal, load_journal, clear_journal
 # from faster_whisper import WhisperModel
+#git add .
+#git commit -m "Update app.py with new features and improvements"
+#git push origin main
 
 st.set_page_config(
     page_title="Mind Melody",
     page_icon="image/logo.png",
     layout="wide"
 )
+init_db()
 
-
-# ===================== SESSION =====================
-if "journal" not in st.session_state:
-    st.session_state.journal = []
 
 # ===================== CSS =====================
 st.markdown("""
@@ -518,46 +519,96 @@ with tab1:
                     )
 
 
-            st.session_state.journal.append({
-                "Thời gian": datetime.now().strftime("%H:%M - %d/%m/%Y"),
-                "Cảm xúc": emotion,
-                "Nguồn dữ liệu": ", ".join(
-                    [
-                        "Giọng nói" if has_audio else "",
-                        "Khuôn mặt" if has_camera else "",
-                        "Văn bản" if text_input.strip() else "",
-                        "Giọng nói → văn bản" if voice_text.strip() else ""
-                    ]
-                ).replace(", ,", ",").strip(", "),
-                "Ghi chú": message
-            })
+            source = ", ".join(
+                [
+                    "Giọng nói" if has_audio else "",
+                    "Khuôn mặt" if has_camera else "",
+                    "Văn bản" if text_input.strip() else "",
+                    "Giọng nói → văn bản" if voice_text.strip() else ""
+                ]
+            ).replace(", ,", ",").strip(", ")
+
+            save_journal(
+                emotion=emotion,
+                source=source,
+                note=message
+            )
 
         st.success("Đã lưu vào nhật ký cảm xúc.")
 
 # ===================== TAB 2 =====================
 with tab2:
-    st.markdown("## 📖 🌱 Hành trình cảm xúc")
+    st.markdown("## 🌱 Hành trình cảm xúc")
 
-    if st.session_state.journal:
-        df = pd.DataFrame(st.session_state.journal)
+    rows = load_journal()
+
+    if rows:
+        df = pd.DataFrame(
+            rows,
+            columns=["Thời gian", "Cảm xúc", "Nguồn dữ liệu", "Ghi chú"]
+        )
+
         st.dataframe(df, use_container_width=True)
 
         st.markdown("## 📊 Biểu đồ cảm xúc")
         chart_data = df["Cảm xúc"].value_counts().reset_index()
         chart_data.columns = ["Cảm xúc", "Số lần"]
+
         st.bar_chart(chart_data.set_index("Cảm xúc"))
 
         if st.button("🗑️ Xóa nhật ký cảm xúc"):
-            st.session_state.journal = []
+            clear_journal()
             st.rerun()
     else:
         st.info("Chưa có dữ liệu. Hãy sang mục Lắng nghe tôi để phân tích cảm xúc đầu tiên.")
 
 # ===================== TAB 3 =====================
 with tab3:
+
     st.markdown("## 📊 Phân tích cuộc sống cảm xúc")
 
-    analysis = life_analysis(st.session_state.journal)
+    rows = load_journal()
+
+    if rows:
+
+        df = pd.DataFrame(
+            rows,
+            columns=[
+                "Thời gian",
+                "Cảm xúc",
+                "Nguồn dữ liệu",
+                "Ghi chú"
+            ]
+        )
+
+        negative = [
+            "căng thẳng",
+            "áp lực",
+            "mệt mỏi",
+            "buồn",
+            "lo lắng"
+        ]
+
+        bad_count = len(
+            df[df["Cảm xúc"].isin(negative)]
+        )
+
+        score = max(
+            0,
+            100 - bad_count * 5
+        )
+
+        st.metric(
+            "💚 Điểm sức khỏe cảm xúc",
+            f"{score}/100"
+        )
+
+    journal_for_analysis = [
+        {"Cảm xúc": row[1]}
+        for row in rows
+    ]
+
+    analysis = life_analysis(journal_for_analysis)
 
     st.markdown(f"""
     <div class="ai-result">
@@ -565,13 +616,25 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    if st.session_state.journal:
-        df = pd.DataFrame(st.session_state.journal)
+    if rows:
+        df = pd.DataFrame(
+            rows,
+            columns=["Thời gian", "Cảm xúc", "Nguồn dữ liệu", "Ghi chú"]
+        )
+
         st.markdown("### Tóm tắt gần đây")
-        st.write(f"Số lần ghi nhận cảm xúc: **{len(df)}**")
-        st.write(f"Cảm xúc xuất hiện nhiều nhất: **{df['Cảm xúc'].mode()[0]}**")
+
+        st.write(
+            f"Số lần ghi nhận cảm xúc: **{len(df)}**"
+        )
+
+        st.write(
+            f"Cảm xúc xuất hiện nhiều nhất: **{df['Cảm xúc'].mode()[0]}**"
+        )
     else:
-        st.write("Hãy sử dụng ứng dụng vài lần để Mind Melody có thêm dữ liệu phân tích.")
+        st.write(
+            "Hãy sử dụng ứng dụng vài lần để Mind Melody có thêm dữ liệu phân tích."
+        )
 
 # ===================== TAB 4 =====================
 with tab4:
