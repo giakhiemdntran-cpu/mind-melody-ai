@@ -1,14 +1,32 @@
 import streamlit as st
-import pandas as pd
-from datetime import datetime
-import random
-import tempfile
 from PIL import Image
-from database import init_db, save_journal, load_journal, clear_journal
-# from faster_whisper import WhisperModel
+import random
+import pandas as pd
+
+from database import (
+    init_db,
+    save_journal,
+    load_journal,
+    clear_journal
+)
+
+from ai.speech_ai import speech_to_text
+from ai.face_ai import (
+    face_emotion_detection,
+    convert_face_emotion
+)
+
+from ai.emotion_ai import (
+    detect_emotion,
+    life_analysis
+)
+
+from data.playlists import playlist_bank, get_playlists
+
 #git add .
 #git commit -m "Update app.py with new features and improvements"
 #git push origin main
+
 
 st.set_page_config(
     page_title="Mind Melody",
@@ -175,7 +193,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
 # ===================== APPEARANCE =====================
 logo = Image.open("image/apperance.png")
 
@@ -198,188 +215,6 @@ st.markdown("""
 Mỗi cảm xúc đều có một giai điệu riêng
 </div>
 """, unsafe_allow_html=True)
-
-# ===================== DATA =====================
-playlist_bank = {
-
-    "căng thẳng": [
-        {
-            "name": "Lofi Việt Chill",
-            "url": "https://www.youtube.com/results?search_query=lofi+viet+chill"
-        },
-        {
-            "name": "Piano Thư Giãn",
-            "url": "https://www.youtube.com/results?search_query=piano+thu+gian"
-        },
-        {
-            "name": "Nhạc Cafe Chill",
-            "url": "https://www.youtube.com/results?search_query=cafe+music+viet"
-        }
-    ],
-
-    "mệt mỏi": [
-        {
-            "name": "Healing Music",
-            "url": "https://www.youtube.com/results?search_query=healing+music+viet"
-        },
-        {
-            "name": "Acoustic Việt",
-            "url": "https://www.youtube.com/results?search_query=acoustic+viet"
-        },
-        {
-            "name": "Nhạc Ngủ Ngon",
-            "url": "https://www.youtube.com/results?search_query=nhac+ngu+ngon"
-        }
-    ],
-
-    "áp lực": [
-        {
-            "name": "Study Lofi",
-            "url": "https://www.youtube.com/results?search_query=study+lofi+viet"
-        },
-        {
-            "name": "Deep Focus",
-            "url": "https://www.youtube.com/results?search_query=deep+focus+music"
-        },
-        {
-            "name": "Nhạc Tập Trung",
-            "url": "https://www.youtube.com/results?search_query=nhac+tap+trung+hoc+bai"
-        }
-    ],
-
-    "buồn": [
-        {
-            "name": "Ballad Việt",
-            "url": "https://www.youtube.com/results?search_query=ballad+viet"
-        },
-        {
-            "name": "Indie Việt",
-            "url": "https://www.youtube.com/results?search_query=indie+viet"
-        },
-        {
-            "name": "Nhạc Chữa Lành",
-            "url": "https://www.youtube.com/results?search_query=healing+vietnamese+music"
-        }
-    ],
-
-    "vui vẻ": [
-        {
-            "name": "V-Pop Tích Cực",
-            "url": "https://www.youtube.com/results?search_query=vpop+happy+songs"
-        },
-        {
-            "name": "Nhạc Tạo Động Lực",
-            "url": "https://www.youtube.com/results?search_query=motivational+music+vietnamese"
-        },
-        {
-            "name": "Nhạc Trẻ Việt",
-            "url": "https://www.youtube.com/results?search_query=nhac+tre+viet+hay"
-        }
-    ],
-
-    "cần thư giãn": [
-        {
-            "name": "Café Sữa Đá Lofi",
-            "url": "https://www.youtube.com/results?search_query=cafe+sua+da+lofi"
-        },
-        {
-            "name": "Chill Việt",
-            "url": "https://www.youtube.com/results?search_query=chill+viet"
-        },
-        {
-            "name": "Nature Sounds",
-            "url": "https://www.youtube.com/results?search_query=nature+sounds+relax"
-        }
-    ],
-
-    "lo lắng": [
-        {
-            "name": "Calm Music",
-            "url": "https://www.youtube.com/results?search_query=calm+music"
-        },
-        {
-            "name": "Meditation Music",
-            "url": "https://www.youtube.com/results?search_query=meditation+music"
-        },
-        {
-            "name": "Piano Bình Yên",
-            "url": "https://www.youtube.com/results?search_query=peaceful+piano"
-        }
-    ]
-}
-
-# @st.cache_resource(show_spinner=False)
-# def load_whisper_model():
-#     return WhisperModel(
-#         "small",
-#         device="cpu",
-#         compute_type="int8"
-#     )
-
-def speech_to_text(audio_data):
-    return "Tôi đang thử nghiệm chức năng Speech-to-Text."
-    # if audio_data is None:
-    #     return ""
-
-    # with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
-    #     tmp_file.write(audio_data.getbuffer())
-    #     audio_path = tmp_file.name
-
-    # model = load_whisper_model()
-
-    # segments, info = model.transcribe(
-    #     audio_path,
-    #     language="vi",
-    #     beam_size=5
-    # )
-
-    # text = " ".join([segment.text for segment in segments])
-
-    # return text.strip()
-
-def detect_emotion(text, has_audio=False, has_camera=False):
-    text = text.lower()
-
-    if any(w in text for w in ["stress", "căng thẳng", "khó thở", "bất an"]):
-        return "căng thẳng", "Tôi cảm thấy bạn đang hơi căng thẳng và cần được thư giãn."
-
-    if any(w in text for w in ["mệt", "kiệt sức", "đuối", "hết năng lượng", "buồn ngủ"]):
-        return "mệt mỏi", "Tôi cảm thấy bạn đang khá mệt mỏi và cần nghỉ ngơi một chút."
-
-    if any(w in text for w in ["áp lực", "deadline", "thi", "bài tập", "quá tải", "công việc nhiều"]):
-        return "áp lực", "Tôi cảm thấy bạn đang chịu nhiều áp lực trong thời gian này."
-
-    if any(w in text for w in ["buồn", "cô đơn", "chán", "thất vọng", "tủi thân"]):
-        return "buồn", "Tôi cảm thấy bạn đang buồn hoặc có chút cô đơn."
-
-    if any(w in text for w in ["vui", "hạnh phúc", "thành công", "phấn khởi", "tuyệt vời"]):
-        return "vui vẻ", "Tôi cảm thấy bạn đang có tâm trạng tích cực và vui vẻ."
-
-    if has_audio and has_camera:
-        return "cần thư giãn", "Qua giọng nói và biểu hiện, tôi cảm thấy bạn đang cần được lắng nghe và thư giãn."
-
-    if has_audio:
-        return "cần thư giãn", "Tôi đã nhận được chia sẻ bằng giọng nói. Tôi cảm thấy bạn đang cần một không gian nhẹ nhàng hơn."
-
-    if has_camera:
-        return "cần thư giãn", "Qua biểu hiện khuôn mặt, tôi cảm thấy bạn đang cần một chút thư giãn."
-
-    return "cần thư giãn", "Tôi cảm thấy bạn đang cần một chút thư giãn và cân bằng lại cảm xúc."
-
-def life_analysis(journal):
-    if not journal:
-        return "Chưa có đủ dữ liệu để phân tích cuộc sống cảm xúc của bạn."
-
-    emotions = [item["Cảm xúc"] for item in journal]
-    top = max(set(emotions), key=emotions.count)
-
-    if top in ["căng thẳng", "áp lực", "mệt mỏi"]:
-        return "Dữ liệu gần đây cho thấy bạn có thể đang trải qua giai đoạn khá nhiều áp lực. Mind Melody khuyên bạn nên nghỉ ngơi đều hơn, giảm tải công việc và dành thời gian cho bản thân."
-    if top == "buồn":
-        return "Dữ liệu cho thấy bạn có nhiều khoảnh khắc trầm xuống. Hãy thử chia sẻ với người thân, nghỉ ngơi và chọn các hoạt động nhẹ nhàng hơn."
-    if top == "vui vẻ":
-        return "Bạn đang có xu hướng cảm xúc tích cực. Hãy tiếp tục duy trì các thói quen tốt và lan tỏa năng lượng này."
-    return "Bạn đang cần cân bằng lại cảm xúc. Những playlist nhẹ nhàng và thói quen nghỉ ngơi ngắn có thể giúp ích."
 
 
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -433,6 +268,13 @@ with tab1:
         has_camera = camera_image is not None
         text_input = user_text if "user_text" in locals() else ""
 
+        face_emotion = None
+
+        if has_camera:
+            face_emotion = face_emotion_detection(
+                camera_image
+            )
+            
         voice_text = ""
 
         if has_audio:
@@ -449,12 +291,33 @@ with tab1:
             st.write("### Cảm xúc cảm nhận được:")
             st.write(voice_text)
 
+            if face_emotion:
+
+                st.write(
+                    f"📷 DeepFace nhận diện: {face_emotion}"
+                )
+
         combined_text = text_input + " " + voice_text
 
         if combined_text.strip() == "" and not has_camera:
             st.warning("Bạn hãy ghi âm, chụp khuôn mặt hoặc mở phần văn bản để chia sẻ trước nhé.")
         else:
-            emotion, message = detect_emotion(combined_text, has_audio, has_camera)
+            emotion, message = detect_emotion(
+                combined_text,
+                has_audio,
+                has_camera
+            )
+
+            if face_emotion:
+
+                emotion = convert_face_emotion(
+                    face_emotion
+                )
+
+                message = (
+                    f"Tôi cảm thấy bạn đang {emotion} "
+                    f"dựa trên biểu hiện khuôn mặt."
+                )
 
             st.markdown("## 🧠 Kết quả AI cảm nhận")
             st.markdown(f'<div class="ai-result">{message}</div>', unsafe_allow_html=True)
@@ -479,7 +342,7 @@ with tab1:
 
             st.markdown("## 🎧 Playlist gợi ý cho bạn")
 
-            for playlist in playlist_bank[emotion]:
+            for playlist in get_playlists(emotion):
                 st.markdown(f"""
                 <div class="playlist-card">
                     <b>🎵 {playlist["name"]}</b><br>
@@ -495,7 +358,7 @@ with tab1:
                 )
 
             selected_playlist = random.choice(
-                playlist_bank[emotion]
+                get_playlists(emotion)
             )
 
             st.markdown(
@@ -512,7 +375,7 @@ with tab1:
             )
 
             with st.expander("🎶 Thêm gợi ý khác"):
-                for p in playlist_bank[emotion]:
+                for p in get_playlists(emotion):
                     st.link_button(
                         p["name"],
                         p["url"]
@@ -531,7 +394,8 @@ with tab1:
             save_journal(
                 emotion=emotion,
                 source=source,
-                note=message
+                note=message,
+                playlist=selected_playlist["name"]
             )
 
         st.success("Đã lưu vào nhật ký cảm xúc.")
@@ -545,7 +409,13 @@ with tab2:
     if rows:
         df = pd.DataFrame(
             rows,
-            columns=["Thời gian", "Cảm xúc", "Nguồn dữ liệu", "Ghi chú"]
+            columns=[
+                "Thời gian",
+                "Cảm xúc",
+                "Nguồn dữ liệu",
+                "Ghi chú",
+                "Playlist"
+            ]
         )
 
         st.dataframe(df, use_container_width=True)
@@ -577,7 +447,8 @@ with tab3:
                 "Thời gian",
                 "Cảm xúc",
                 "Nguồn dữ liệu",
-                "Ghi chú"
+                "Ghi chú",
+                "Playlist"
             ]
         )
 
@@ -602,6 +473,12 @@ with tab3:
             "💚 Điểm sức khỏe cảm xúc",
             f"{score}/100"
         )
+        if score >= 80:
+            st.success("🌞 Tinh thần của bạn đang khá tích cực.")
+        elif score >= 60:
+            st.warning("🌤 Có dấu hiệu áp lực nhẹ, hãy nghỉ ngơi hợp lý.")
+        else:
+            st.error("🌧 Bạn đang có nhiều cảm xúc tiêu cực, hãy dành thời gian cho bản thân.")
 
     journal_for_analysis = [
         {"Cảm xúc": row[1]}
@@ -619,9 +496,14 @@ with tab3:
     if rows:
         df = pd.DataFrame(
             rows,
-            columns=["Thời gian", "Cảm xúc", "Nguồn dữ liệu", "Ghi chú"]
+            columns=[
+                "Thời gian",
+                "Cảm xúc",
+                "Nguồn dữ liệu",
+                "Ghi chú",
+                "Playlist"
+            ]
         )
-
         st.markdown("### Tóm tắt gần đây")
 
         st.write(
@@ -630,6 +512,22 @@ with tab3:
 
         st.write(
             f"Cảm xúc xuất hiện nhiều nhất: **{df['Cảm xúc'].mode()[0]}**"
+        )
+        st.markdown("### 📈 Xu hướng cảm xúc")
+
+        emotion_count = (
+            df["Cảm xúc"]
+            .value_counts()
+            .reset_index()
+        )
+
+        emotion_count.columns = [
+            "Cảm xúc",
+            "Số lần"
+        ]
+
+        st.bar_chart(
+            emotion_count.set_index("Cảm xúc")
         )
     else:
         st.write(
