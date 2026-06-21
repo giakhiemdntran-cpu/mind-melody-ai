@@ -2,7 +2,7 @@ streamlit
 pandas
 pillow
 faster-whisper
-deepface==0.0.93
-tensorflow==2.16.1
+deepface
+tensorflow
 tf-keras
 opencv-python-headless
