@@ -2,8 +2,3 @@ streamlit
 pandas
 pillow
 faster-whisper
-deepface
-tensorflow
-tf-keras
-opencv-python
-opencv-python-headless
