@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import random
 import pandas as pd
+from ai.health_score import calculate_emotional_health_score
 
 from database import (
     init_db,
@@ -440,61 +441,30 @@ with tab3:
 
     rows = load_journal()
 
-    if rows:
-
-        df = pd.DataFrame(
-            rows,
-            columns=[
-                "Thời gian",
-                "Cảm xúc",
-                "Nguồn dữ liệu",
-                "Ghi chú",
-                "Playlist"
-            ]
+    if not rows:
+        st.info(
+            "Hãy sử dụng ứng dụng vài lần để Mind Melody có thêm dữ liệu phân tích."
         )
 
-        negative = [
-            "căng thẳng",
-            "áp lực",
-            "mệt mỏi",
-            "buồn",
-            "lo lắng"
-        ]
+    else:
+        score, score_message = calculate_emotional_health_score(rows)
 
-        bad_count = len(
-            df[df["Cảm xúc"].isin(negative)]
-        )
-
-        score = max(
-            0,
-            100 - bad_count * 5
-        )
+        st.markdown("### 💚 AI Emotional Health Score")
 
         st.metric(
-            "💚 Điểm sức khỏe cảm xúc",
-            f"{score}/100"
+            label="Điểm cân bằng cảm xúc",
+            value=f"{score}/100"
         )
-        if score >= 80:
-            st.success("🌞 Tinh thần của bạn đang khá tích cực.")
-        elif score >= 60:
-            st.warning("🌤 Có dấu hiệu áp lực nhẹ, hãy nghỉ ngơi hợp lý.")
+
+        if score >= 85:
+            st.success(score_message)
+        elif score >= 70:
+            st.info(score_message)
+        elif score >= 50:
+            st.warning(score_message)
         else:
-            st.error("🌧 Bạn đang có nhiều cảm xúc tiêu cực, hãy dành thời gian cho bản thân.")
+            st.error(score_message)
 
-    journal_for_analysis = [
-        {"Cảm xúc": row[1]}
-        for row in rows
-    ]
-
-    analysis = life_analysis(journal_for_analysis)
-
-    st.markdown(f"""
-    <div class="ai-result">
-        {analysis}
-    </div>
-    """, unsafe_allow_html=True)
-
-    if rows:
         df = pd.DataFrame(
             rows,
             columns=[
@@ -505,7 +475,25 @@ with tab3:
                 "Playlist"
             ]
         )
-        st.markdown("### Tóm tắt gần đây")
+
+        journal_for_analysis = [
+            {
+                "Cảm xúc": row[1]
+            }
+            for row in rows
+        ]
+
+        analysis = life_analysis(journal_for_analysis)
+
+        st.markdown("### 🧠 Nhận xét từ Mind Melody")
+
+        st.markdown(f"""
+        <div class="ai-result">
+            {analysis}
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("### 📝 Tóm tắt gần đây")
 
         st.write(
             f"Số lần ghi nhận cảm xúc: **{len(df)}**"
@@ -514,6 +502,7 @@ with tab3:
         st.write(
             f"Cảm xúc xuất hiện nhiều nhất: **{df['Cảm xúc'].mode()[0]}**"
         )
+
         st.markdown("### 📈 Xu hướng cảm xúc")
 
         emotion_count = (
@@ -529,10 +518,6 @@ with tab3:
 
         st.bar_chart(
             emotion_count.set_index("Cảm xúc")
-        )
-    else:
-        st.write(
-            "Hãy sử dụng ứng dụng vài lần để Mind Melody có thêm dữ liệu phân tích."
         )
 
 # ===================== TAB 4 =====================
