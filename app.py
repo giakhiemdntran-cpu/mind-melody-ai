@@ -335,7 +335,8 @@ with tab1:
                 "áp lực": "Hãy chia nhỏ công việc, ưu tiên việc quan trọng nhất và cho mình một khoảng nghỉ.",
                 "buồn": "Bạn có thể nghe nhạc dịu nhẹ, viết ra điều đang làm mình buồn hoặc chia sẻ với người tin cậy.",
                 "vui vẻ": "Hãy giữ năng lượng tích cực này và chọn playlist tươi sáng.",
-                "cần thư giãn": "Hãy cho bản thân vài phút yên tĩnh và nghe một playlist nhẹ nhàng."
+                "cần thư giãn": "Hãy cho bản thân vài phút yên tĩnh và nghe một playlist nhẹ nhàng.",
+                "lo lắng": "Hãy thử hít thở sâu, thư giãn và nghe một playlist nhẹ nhàng để cải thiện tâm trạng."
             }
 
             st.info("💚 Tư vấn nhẹ: " + advice[emotion])
