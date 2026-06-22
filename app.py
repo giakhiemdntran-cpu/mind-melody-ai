@@ -333,16 +333,21 @@ with tab1:
             )
 
             advice = {
-                "căng thẳng": "Hãy thử hít thở chậm 3 phút, tạm rời màn hình và nghe một playlist nhẹ.",
-                "mệt mỏi": "Bạn nên nghỉ ngơi ngắn, uống nước và chọn nhạc chậm để cơ thể thả lỏng.",
-                "áp lực": "Hãy chia nhỏ công việc, ưu tiên việc quan trọng nhất và cho mình một khoảng nghỉ.",
-                "buồn": "Bạn có thể nghe nhạc dịu nhẹ, viết ra điều đang làm mình buồn hoặc chia sẻ với người tin cậy.",
-                "vui vẻ": "Hãy giữ năng lượng tích cực này và chọn playlist tươi sáng.",
-                "cần thư giãn": "Hãy cho bản thân vài phút yên tĩnh và nghe một playlist nhẹ nhàng.",
-                "lo lắng": "Hãy thử hít thở sâu, thư giãn và nghe một playlist nhẹ nhàng để cải thiện tâm trạng."
+                "căng thẳng": "Hãy thử hít thở sâu, nghỉ ngơi vài phút và nghe một playlist nhẹ nhàng.",
+                "mệt mỏi": "Bạn nên cho cơ thể nghỉ ngơi, uống nước và tránh làm việc quá sức.",
+                "áp lực": "Hãy chia nhỏ công việc, ưu tiên việc quan trọng và dành vài phút thư giãn.",
+                "buồn": "Hãy cho phép bản thân được nghỉ ngơi, nghe một bài nhạc dịu nhẹ hoặc chia sẻ với người thân.",
+                "lo lắng": "Hãy thử hít thở chậm, viết ra điều khiến bạn lo lắng và nghỉ ngơi vài phút.",
+                "vui vẻ": "Hãy tận hưởng năng lượng tích cực này và lan tỏa niềm vui đến những người xung quanh.",
+                "cần thư giãn": "Hãy cho bản thân vài phút yên tĩnh và nghe một playlist nhẹ nhàng."
             }
 
-            st.info("💚 Tư vấn nhẹ: " + advice[emotion])
+            st.info(
+                "💚 Tư vấn nhẹ: " + advice.get(
+                    emotion,
+                    advice["cần thư giãn"]
+                )
+            )
 
             st.markdown("## 🎧 Playlist gợi ý cho bạn")
 
